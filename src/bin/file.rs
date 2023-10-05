@@ -12,7 +12,8 @@ fn main() {
             for entry in paths {
                 if let Ok(path) = entry {
                     println!("{:?}", path.display());
-                    match_all(path)
+                    match_all(path.as_path());
+                    return;
                 }
             }
         }

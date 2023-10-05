@@ -1,25 +1,25 @@
-pub struct Type {
-    pub mime: String,
-    pub extension: String,
+use std::hash::Hash;
+
+pub struct Type<'a> {
+    pub mime: &'a str,
+    pub extension: &'a str,
 }
 
-pub trait Match {
-    fn r#match(buf: Vec<u8>) -> bool;
+pub const fn new_type<'a>(mime: &'a str, extension: &'a str) -> Type<'a> {
+    Type { mime, extension }
 }
 
-impl Type {
-    pub fn new(mime: &str, extension: &str) -> Self {
-        Type {
-            mime: String::from(mime),
-            extension: String::from(extension),
-        }
+impl Hash for Type<'_> {
+    fn hash<H: std::hash::Hasher>(&self, state: &mut H) {
+        self.mime.hash(state);
+        self.extension.hash(state);
     }
+}
 
-    pub fn is_mime(&self, mime: &str) -> bool {
-        self.mime == mime
-    }
+impl Eq for Type<'_> {}
 
-    pub fn is_extension(&self, extension: &str) -> bool {
-        self.extension == extension
+impl PartialEq for Type<'_> {
+    fn eq(&self, other: &Self) -> bool {
+        self.mime == other.mime && self.extension == other.extension
     }
 }
