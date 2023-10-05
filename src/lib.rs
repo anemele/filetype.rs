@@ -1,7 +1,6 @@
-mod enums;
+mod constants;
 mod matcher;
 mod types;
 mod utils;
-mod constants;
 
 pub use matcher::match_all;

@@ -11,9 +11,9 @@ fn main() {
         if let Ok(paths) = glob(&arg) {
             for entry in paths {
                 if let Ok(path) = entry {
-                    println!("{:?}", path.display());
-                    match_all(path.as_path());
-                    return;
+                    if path.is_file() {
+                        match_all(path.as_path());
+                    }
                 }
             }
         }

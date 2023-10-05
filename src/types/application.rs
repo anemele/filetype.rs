@@ -1,12 +1,12 @@
 use std::collections::HashMap;
 
-use super::base::{new_type, Type};
+use super::base::{new_type, Type, TypeMatcher, TypeTypesMatcher};
 
-const WASM: Type = new_type("application/wasm", "wasm");
-const DEX: Type = new_type("application/vnd.android.dex", "dex");
-const DEY: Type = new_type("application/vnd.android.dey", "dey");
+const TYPE_WASM: Type = new_type("application/wasm", "wasm");
+const TYPE_DEX: Type = new_type("application/vnd.android.dex", "dex");
+const TYPE_DEY: Type = new_type("application/vnd.android.dey", "dey");
 
-fn is_wasm(buf: Vec<u8>) -> bool {
+fn is_wasm(buf: &Vec<u8>) -> bool {
     buf.len() >= 8
         && buf[0] == 0x00
         && buf[1] == 0x61
@@ -18,7 +18,7 @@ fn is_wasm(buf: Vec<u8>) -> bool {
         && buf[7] == 0x00
 }
 
-fn is_dex(buf: Vec<u8>) -> bool {
+fn is_dex(buf: &Vec<u8>) -> bool {
     buf.len() > 36 &&
 		// magic
 		buf[0] == 0x64 && buf[1] == 0x65 && buf[2] == 0x78 && buf[3] == 0x0A &&
@@ -26,20 +26,20 @@ fn is_dex(buf: Vec<u8>) -> bool {
 		buf[36] == 0x70
 }
 
-fn is_dey(buf: Vec<u8>) -> bool {
+fn is_dey(buf: &Vec<u8>) -> bool {
     buf.len() > 100 &&
     // dey magic
     buf[0] == 0x64 && buf[1] == 0x65 && buf[2] == 0x79 && buf[3] == 0x0A &&
     // dex
-    is_dex(buf[40..100].to_vec())
+    is_dex(&buf[40..100].to_vec())
 }
 
-pub fn sum() -> HashMap<Type<'static>, fn(Vec<u8>) -> bool> {
-    let mut ret = HashMap::<Type, fn(Vec<u8>) -> bool>::new();
+pub fn sum() -> TypeTypesMatcher {
+    let mut ret = HashMap::<Type, TypeMatcher>::new();
 
-    ret.insert(WASM, is_wasm);
-    ret.insert(DEX, is_dex);
-    ret.insert(DEY, is_dey);
+    ret.insert(TYPE_WASM, is_wasm);
+    ret.insert(TYPE_DEX, is_dex);
+    ret.insert(TYPE_DEY, is_dey);
 
     ret
 }

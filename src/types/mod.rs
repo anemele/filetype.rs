@@ -5,17 +5,24 @@ mod base;
 mod document;
 mod font;
 mod image;
+mod utils;
 mod video;
 
 use std::collections::HashMap;
 
-use base::Type;
+pub use base::TYPE_UNKNOWN;
+use base::{Type, TypeMatcher, TypeTypesMatcher};
 
-pub fn sum() -> HashMap<Type<'static>, fn(Vec<u8>) -> bool> {
-    let mut ret = HashMap::<Type, fn(Vec<u8>) -> bool>::new();
+pub fn sum() -> TypeTypesMatcher {
+    let mut ret = HashMap::<Type, TypeMatcher>::new();
 
     ret.extend(application::sum());
+    ret.extend(archive::sum());
+    ret.extend(audio::sum());
+    ret.extend(document::sum());
+    ret.extend(font::sum());
     ret.extend(image::sum());
+    ret.extend(video::sum());
 
     ret
 }

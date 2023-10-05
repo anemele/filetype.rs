@@ -1,4 +1,6 @@
-use std::hash::Hash;
+use std::{collections::HashMap, hash::Hash};
+
+pub const TYPE_UNKNOWN: &str = "UNKNOWN";
 
 pub struct Type<'a> {
     pub mime: &'a str,
@@ -23,3 +25,6 @@ impl PartialEq for Type<'_> {
         self.mime == other.mime && self.extension == other.extension
     }
 }
+
+pub type TypeMatcher = fn(&Vec<u8>) -> bool;
+pub type TypeTypesMatcher = HashMap<Type<'static>, TypeMatcher>;
