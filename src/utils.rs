@@ -1,11 +1,7 @@
-use std::{
-    fs::File,
-    io::Read,
-};
+use std::{fs::File, io::Read};
 
+use crate::constants::NUM_SIGNATURE_BYTES;
 use crate::enums::InputType;
-
-const NUM_SIGNATURE_BYTES: usize = 8192;
 
 pub fn get_signature_bytes(path: &str) -> Vec<u8> {
     let mut file = match File::open(path) {

@@ -1,3 +1,1 @@
-pub struct Wasm {
-    
-}
+pub struct Wasm {}
