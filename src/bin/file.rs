@@ -1,4 +1,4 @@
-use filetype::match_all;
+use filetypes::match_all;
 use glob::glob;
 use std::env::{self};
 use std::path::MAIN_SEPARATOR_STR;

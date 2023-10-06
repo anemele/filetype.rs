@@ -1,7 +1,15 @@
 [package]
-name = "filetype"
+name = "filetypes"
 version = "0.1.0"
 edition = "2021"
+description = "Determine file type via magic numbers."
+homepage = "https://github.com/anemele/filetype.rs"
+document = "https://github.com/h2non/filetype"
+repository = "https://github.com/anemele/filetype.rs"
+keywords = ["filetype", "filetypes", "match"]
+categories = ["file-type-match"]
+license = "MIT"
+
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
