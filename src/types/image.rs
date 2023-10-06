@@ -1,6 +1,9 @@
 use std::collections::HashMap;
 
-use super::base::{new_type, Type, TypeMatcher, TypeTypesMatcher};
+use super::{
+    base::{new_type, Type, TypeMatcher, TypeTypesMatcher},
+    utils::{get_ftyp, is_iso_bmf},
+};
 
 const TYPE_JPEG: Type = new_type("image/jpeg", "jpg");
 const TYPE_JPEG2000: Type = new_type("image/jp2", "jp2");
@@ -83,6 +86,23 @@ fn is_ico(buf: &Vec<u8>) -> bool {
 }
 
 fn is_heif(buf: &Vec<u8>) -> bool {
+    if !is_iso_bmf(buf) {
+        return false;
+    }
+
+    let (major_brand, _, compatible_brands) = get_ftyp(buf);
+    if major_brand == "heic" {
+        return true;
+    }
+
+    if major_brand == "mif1" || major_brand == "msf1" {
+        for cb in compatible_brands {
+            if cb == "heic" {
+                return true;
+            }
+        }
+    }
+
     false
 }
 
@@ -95,6 +115,22 @@ fn is_exr(buf: &Vec<u8>) -> bool {
 }
 
 fn is_avif(buf: &Vec<u8>) -> bool {
+    if !is_iso_bmf(buf) {
+        return false;
+    }
+
+    let (major_brand, _, compatible_brands) = get_ftyp(buf);
+    if major_brand == "avif" {
+        return true;
+    }
+
+    if major_brand == "mif1" || major_brand == "msf1" {
+        for cb in compatible_brands {
+            if cb == "avif" {
+                return true;
+            }
+        }
+    }
     false
 }
 
