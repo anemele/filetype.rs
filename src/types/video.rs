@@ -1,4 +1,7 @@
-use super::base::{new_type, Type, TypeMatcher, TypeTypesMatcher};
+use super::{
+    base::{new_type, Type, TypeMatcher, TypeTypesMatcher},
+    utils::bytes_index,
+};
 use std::collections::HashMap;
 
 const TYPE_MP4: Type = new_type("video/mp4", "mp4");
@@ -12,7 +15,7 @@ const TYPE_MPG: Type = new_type("video/mpeg", "mpg");
 const TYPE_FLV: Type = new_type("video/x-flv", "flv");
 const TYPE_3GP: Type = new_type("video/3gpp", "3gp");
 
-fn is_m4v(buf: &Vec<u8>) -> bool {
+fn is_m4v(buf: &[u8]) -> bool {
     buf.len() > 10
         && buf[4] == 0x66
         && buf[5] == 0x74
@@ -23,25 +26,25 @@ fn is_m4v(buf: &Vec<u8>) -> bool {
         && buf[10] == 0x56
 }
 
-fn is_mkv(buf: &Vec<u8>) -> bool {
+fn is_mkv(buf: &[u8]) -> bool {
     buf.len() > 3
         && buf[0] == 0x1A
         && buf[1] == 0x45
         && buf[2] == 0xDF
         && buf[3] == 0xA3
-        && contains_matroska_signature(buf, &vec![b'm', b'a', b't', b'r', b'o', b's', b'k', b'a'])
+        && contains_matroska_signature(buf, b"matroska")
 }
 
-fn is_webm(buf: &Vec<u8>) -> bool {
+fn is_webm(buf: &[u8]) -> bool {
     buf.len() > 3
         && buf[0] == 0x1A
         && buf[1] == 0x45
         && buf[2] == 0xDF
         && buf[3] == 0xA3
-        && contains_matroska_signature(buf, &vec![b'w', b'e', b'b', b'm'])
+        && contains_matroska_signature(buf, b"webm")
 }
 
-fn is_mov(buf: &Vec<u8>) -> bool {
+fn is_mov(buf: &[u8]) -> bool {
     buf.len() > 15
         && ((buf[0] == 0x0 && buf[1] == 0x0 &&
     buf[2] == 0x0 && (buf[3] == 0x14 || buf[3] == 0x20) &&
@@ -53,7 +56,7 @@ fn is_mov(buf: &Vec<u8>) -> bool {
     (buf[12] == 0x6d && buf[13] == 0x64 && buf[14] == 0x61 && buf[15] == 0x74))
 }
 
-fn is_avi(buf: &Vec<u8>) -> bool {
+fn is_avi(buf: &[u8]) -> bool {
     buf.len() > 10
         && buf[0] == 0x52
         && buf[1] == 0x49
@@ -64,7 +67,7 @@ fn is_avi(buf: &Vec<u8>) -> bool {
         && buf[10] == 0x49
 }
 
-fn is_wmv(buf: &Vec<u8>) -> bool {
+fn is_wmv(buf: &[u8]) -> bool {
     buf.len() > 9
         && buf[0] == 0x30
         && buf[1] == 0x26
@@ -78,7 +81,7 @@ fn is_wmv(buf: &Vec<u8>) -> bool {
         && buf[9] == 0xD9
 }
 
-fn is_mpeg(buf: &Vec<u8>) -> bool {
+fn is_mpeg(buf: &[u8]) -> bool {
     buf.len() > 3
         && buf[0] == 0x0
         && buf[1] == 0x0
@@ -87,11 +90,11 @@ fn is_mpeg(buf: &Vec<u8>) -> bool {
         && buf[3] <= 0xbf
 }
 
-fn is_flv(buf: &Vec<u8>) -> bool {
+fn is_flv(buf: &[u8]) -> bool {
     buf.len() > 3 && buf[0] == 0x46 && buf[1] == 0x4C && buf[2] == 0x56 && buf[3] == 0x01
 }
 
-fn is_mp4(buf: &Vec<u8>) -> bool {
+fn is_mp4(buf: &[u8]) -> bool {
     buf.len() > 11
         && (buf[4] == b'f' && buf[5] == b't' && buf[6] == b'y' && buf[7] == b'p')
         && ((buf[8] == b'a' && buf[9] == b'v' && buf[10] == b'c' && buf[11] == b'1')
@@ -124,7 +127,7 @@ fn is_mp4(buf: &Vec<u8>) -> bool {
             || (buf[8] == b'F' && buf[9] == b'4' && buf[10] == b'P' && buf[11] == b' '))
 }
 
-fn is_3gp(buf: &Vec<u8>) -> bool {
+fn is_3gp(buf: &[u8]) -> bool {
     buf.len() > 10
         && buf[4] == 0x66
         && buf[5] == 0x74
@@ -135,10 +138,11 @@ fn is_3gp(buf: &Vec<u8>) -> bool {
         && buf[10] == 0x70
 }
 
-fn contains_matroska_signature(buf: &Vec<u8>, subt: &Vec<u8>) -> bool {
+fn contains_matroska_signature(buf: &[u8], subt: &[u8]) -> bool {
     let limit = buf.len().min(4096);
-    // TODO
-    false
+    let index = bytes_index(&buf[..limit], subt);
+
+    index >= 3 && buf[index as usize - 3] == 0x42 && buf[index as usize - 2] == 0x82
 }
 
 pub fn sum() -> TypeTypesMatcher {

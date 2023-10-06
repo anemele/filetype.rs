@@ -1,6 +1,6 @@
 use super::{
     base::{new_type, Type, TypeMatcher, TypeTypesMatcher},
-    utils::compare_bytes,
+    utils::{compare_bytes, littleendian_bytes},
 };
 use std::collections::HashMap;
 
@@ -33,16 +33,16 @@ const TYPE_DCM: Type = new_type("application/dicom", "dcm");
 const TYPE_ISO: Type = new_type("application/x-iso9660-image", "iso");
 const TYPE_MACHO: Type = new_type("application/x-mach-binary", "macho"); // Mach-O binaries have no common extension.
 
-// fn bytes_prefix_matcher(magic_pattern: &Vec<u8>) -> fn(&Vec<u8>) -> bool {
-//     // fn matcher(data: &Vec<u8>) -> bool {
+// fn bytes_prefix_matcher(magic_pattern: &[u8]) -> fn(&[u8]) -> bool {
+//     // fn matcher(data: &[u8]) -> bool {
 //     //     compare_bytes(data, magic_pattern, 0)
 //     // }
 //     // matcher
 
-//     |data: &Vec<u8>| compare_bytes(data, magic_pattern, 0)
+//     |data: &[u8]| compare_bytes(data, magic_pattern, 0)
 // }
 
-fn is_epub(buf: &Vec<u8>) -> bool {
+fn is_epub(buf: &[u8]) -> bool {
     let subs = vec![
         0x50, 0x4B, 0x03, 0x04, 0x6D, 0x69, 0x6D, 0x65, 0x74, 0x79, 0x70, 0x65, 0x61, 0x70, 0x70,
         0x6C, 0x69, 0x63, 0x61, 0x74, 0x69, 0x6F, 0x6E, 0x2F, 0x65, 0x70, 0x75, 0x62, 0x2B, 0x7A,
@@ -51,62 +51,62 @@ fn is_epub(buf: &Vec<u8>) -> bool {
     compare_bytes(buf, &subs, 0)
 }
 
-fn is_gz(buf: &Vec<u8>) -> bool {
+fn is_gz(buf: &[u8]) -> bool {
     let subs = vec![0x1F, 0x8B, 0x08];
     compare_bytes(buf, &subs, 0)
 }
 
-fn is_bz2(buf: &Vec<u8>) -> bool {
+fn is_bz2(buf: &[u8]) -> bool {
     let subs = vec![0x42, 0x5A, 0x68];
     compare_bytes(buf, &subs, 0)
 }
 
-fn is_7z(buf: &Vec<u8>) -> bool {
+fn is_7z(buf: &[u8]) -> bool {
     let subs = vec![0x37, 0x7A, 0xBC, 0xAF, 0x27, 0x1C];
     compare_bytes(buf, &subs, 0)
 }
 
-fn is_pdf(buf: &Vec<u8>) -> bool {
+fn is_pdf(buf: &[u8]) -> bool {
     let subs = vec![0x25, 0x50, 0x44, 0x46];
     compare_bytes(buf, &subs, 0)
 }
 
-fn is_exe(buf: &Vec<u8>) -> bool {
+fn is_exe(buf: &[u8]) -> bool {
     let subs = vec![0x4D, 0x5A];
     compare_bytes(buf, &subs, 0)
 }
 
-fn is_rtf(buf: &Vec<u8>) -> bool {
+fn is_rtf(buf: &[u8]) -> bool {
     let subs = vec![0x7B, 0x5C, 0x72, 0x74, 0x66];
     compare_bytes(buf, &subs, 0)
 }
 
-fn is_nes(buf: &Vec<u8>) -> bool {
+fn is_nes(buf: &[u8]) -> bool {
     let subs = vec![0x4E, 0x45, 0x53, 0x1A];
     compare_bytes(buf, &subs, 0)
 }
 
-fn is_crx(buf: &Vec<u8>) -> bool {
+fn is_crx(buf: &[u8]) -> bool {
     let subs = vec![0x43, 0x72, 0x32, 0x34];
     compare_bytes(buf, &subs, 0)
 }
 
-fn is_ps(buf: &Vec<u8>) -> bool {
+fn is_ps(buf: &[u8]) -> bool {
     let subs = vec![0x25, 0x21];
     compare_bytes(buf, &subs, 0)
 }
 
-fn is_xz(buf: &Vec<u8>) -> bool {
+fn is_xz(buf: &[u8]) -> bool {
     let subs = vec![0xFD, 0x37, 0x7A, 0x58, 0x5A, 0x00];
     compare_bytes(buf, &subs, 0)
 }
 
-fn is_sqlite(buf: &Vec<u8>) -> bool {
+fn is_sqlite(buf: &[u8]) -> bool {
     let subs = vec![0x53, 0x51, 0x4C, 0x69];
     compare_bytes(buf, &subs, 0)
 }
 
-fn is_deb(buf: &Vec<u8>) -> bool {
+fn is_deb(buf: &[u8]) -> bool {
     let subs = vec![
         0x21, 0x3C, 0x61, 0x72, 0x63, 0x68, 0x3E, 0x0A, 0x64, 0x65, 0x62, 0x69, 0x61, 0x6E, 0x2D,
         0x62, 0x69, 0x6E, 0x61, 0x72, 0x79,
@@ -114,17 +114,17 @@ fn is_deb(buf: &Vec<u8>) -> bool {
     compare_bytes(buf, &subs, 0)
 }
 
-fn is_ar(buf: &Vec<u8>) -> bool {
+fn is_ar(buf: &[u8]) -> bool {
     let subs = vec![0x21, 0x3C, 0x61, 0x72, 0x63, 0x68, 0x3E];
     compare_bytes(buf, &subs, 0)
 }
 
-fn is_lz(buf: &Vec<u8>) -> bool {
+fn is_lz(buf: &[u8]) -> bool {
     let subs = vec![0x4C, 0x5A, 0x49, 0x50];
     compare_bytes(buf, &subs, 0)
 }
 
-fn is_zip(buf: &Vec<u8>) -> bool {
+fn is_zip(buf: &[u8]) -> bool {
     buf.len() > 3
         && buf[0] == 0x50
         && buf[1] == 0x4B
@@ -132,7 +132,7 @@ fn is_zip(buf: &Vec<u8>) -> bool {
         && (buf[3] == 0x4 || buf[3] == 0x6 || buf[3] == 0x8)
 }
 
-fn is_tar(buf: &Vec<u8>) -> bool {
+fn is_tar(buf: &[u8]) -> bool {
     buf.len() > 261
         && buf[257] == 0x75
         && buf[258] == 0x73
@@ -141,7 +141,7 @@ fn is_tar(buf: &Vec<u8>) -> bool {
         && buf[261] == 0x72
 }
 
-fn is_rar(buf: &Vec<u8>) -> bool {
+fn is_rar(buf: &[u8]) -> bool {
     buf.len() > 6
         && buf[0] == 0x52
         && buf[1] == 0x61
@@ -152,17 +152,17 @@ fn is_rar(buf: &Vec<u8>) -> bool {
         && (buf[6] == 0x0 || buf[6] == 0x1)
 }
 
-fn is_swf(buf: &Vec<u8>) -> bool {
+fn is_swf(buf: &[u8]) -> bool {
     buf.len() > 2 && (buf[0] == 0x43 || buf[0] == 0x46) && buf[1] == 0x57 && buf[2] == 0x53
 }
 
-fn is_cab(buf: &Vec<u8>) -> bool {
+fn is_cab(buf: &[u8]) -> bool {
     buf.len() > 3
         && ((buf[0] == 0x4D && buf[1] == 0x53 && buf[2] == 0x43 && buf[3] == 0x46)
             || (buf[0] == 0x49 && buf[1] == 0x53 && buf[2] == 0x63 && buf[3] == 0x28))
 }
 
-fn is_eot(buf: &Vec<u8>) -> bool {
+fn is_eot(buf: &[u8]) -> bool {
     buf.len() > 35
         && buf[34] == 0x4C
         && buf[35] == 0x50
@@ -171,23 +171,23 @@ fn is_eot(buf: &Vec<u8>) -> bool {
             || (buf[8] == 0x02 && buf[9] == 0x00 && buf[10] == 0x02))
 }
 
-fn is_z(buf: &Vec<u8>) -> bool {
+fn is_z(buf: &[u8]) -> bool {
     buf.len() > 1 && ((buf[0] == 0x1F && buf[1] == 0xA0) || (buf[0] == 0x1F && buf[1] == 0x9D))
 }
 
-fn is_rpm(buf: &Vec<u8>) -> bool {
+fn is_rpm(buf: &[u8]) -> bool {
     buf.len() > 96 && buf[0] == 0xED && buf[1] == 0xAB && buf[2] == 0xEE && buf[3] == 0xDB
 }
 
-fn is_elf(buf: &Vec<u8>) -> bool {
+fn is_elf(buf: &[u8]) -> bool {
     buf.len() > 52 && buf[0] == 0x7F && buf[1] == 0x45 && buf[2] == 0x4C && buf[3] == 0x46
 }
 
-fn is_dcm(buf: &Vec<u8>) -> bool {
+fn is_dcm(buf: &[u8]) -> bool {
     buf.len() > 131 && buf[128] == 0x44 && buf[129] == 0x49 && buf[130] == 0x43 && buf[131] == 0x4D
 }
 
-fn is_iso(buf: &Vec<u8>) -> bool {
+fn is_iso(buf: &[u8]) -> bool {
     buf.len() > 32773
         && buf[32769] == 0x43
         && buf[32770] == 0x44
@@ -196,7 +196,7 @@ fn is_iso(buf: &Vec<u8>) -> bool {
         && buf[32773] == 0x31
 }
 
-fn is_macho(buf: &Vec<u8>) -> bool {
+fn is_macho(buf: &[u8]) -> bool {
     buf.len() > 3
         && ((buf[0] == 0xFE && buf[1] == 0xED && buf[2] == 0xFA && buf[3] == 0xCF) ||
 (buf[0] == 0xFE && buf[1] == 0xED && buf[2] == 0xFA && buf[3] == 0xCE) ||
@@ -207,7 +207,10 @@ fn is_macho(buf: &Vec<u8>) -> bool {
 (buf[0] == 0xCA && buf[1] == 0xFE && buf[2] == 0xBA && buf[3] == 0xBE))
 }
 
-fn is_zst(buf: &Vec<u8>) -> bool {
+const ZSTD_MAGIC_SKIPPABLE_START: u32 = 0x184D2A50;
+const ZSTD_MAGIC_SKIPPABLE_MASK: u32 = 0xFFFFFFF0;
+
+fn is_zst(buf: &[u8]) -> bool {
     // buf.len()
     let subs = vec![0x28, 0xB5, 0x2F, 0xFD];
     if compare_bytes(buf, &subs, 0) {
@@ -216,8 +219,14 @@ fn is_zst(buf: &Vec<u8>) -> bool {
     if buf.len() < 8 {
         return false;
     }
-    // TODO: Here is a if block to return or recurse
-    let todo = "TODO";
+    if littleendian_bytes(&buf[..4]) & ZSTD_MAGIC_SKIPPABLE_MASK == ZSTD_MAGIC_SKIPPABLE_START {
+        let user_data_length = littleendian_bytes(&buf[4..8]) as usize;
+        if buf.len() < 8 + user_data_length {
+            return false;
+        }
+        let next_frame = &buf[8 + user_data_length..];
+        return is_zst(next_frame);
+    }
     false
 }
 

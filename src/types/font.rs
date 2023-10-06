@@ -6,7 +6,7 @@ const TYPE_WOFF2: Type = new_type("application/font-woff", "woff2");
 const TYPE_TTF: Type = new_type("application/font-sfnt", "ttf");
 const TYPE_OTF: Type = new_type("application/font-sfnt", "otf");
 
-fn is_woff(buf: &Vec<u8>) -> bool {
+fn is_woff(buf: &[u8]) -> bool {
     buf.len() > 7
         && buf[0] == 0x77
         && buf[1] == 0x4F
@@ -18,7 +18,7 @@ fn is_woff(buf: &Vec<u8>) -> bool {
         && buf[7] == 0x00
 }
 
-fn is_woff2(buf: &Vec<u8>) -> bool {
+fn is_woff2(buf: &[u8]) -> bool {
     buf.len() > 7
         && buf[0] == 0x77
         && buf[1] == 0x4F
@@ -30,7 +30,7 @@ fn is_woff2(buf: &Vec<u8>) -> bool {
         && buf[7] == 0x00
 }
 
-fn is_ttf(buf: &Vec<u8>) -> bool {
+fn is_ttf(buf: &[u8]) -> bool {
     buf.len() > 4
         && buf[0] == 0x00
         && buf[1] == 0x01
@@ -39,7 +39,7 @@ fn is_ttf(buf: &Vec<u8>) -> bool {
         && buf[4] == 0x00
 }
 
-fn is_otf(buf: &Vec<u8>) -> bool {
+fn is_otf(buf: &[u8]) -> bool {
     buf.len() > 4
         && buf[0] == 0x4F
         && buf[1] == 0x54

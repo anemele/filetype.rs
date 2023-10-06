@@ -21,11 +21,11 @@ const TYPE_DWG: Type = new_type("image/vnd.dwg", "dwg");
 const TYPE_EXR: Type = new_type("image/x-exr", "exr");
 const TYPE_AVIF: Type = new_type("image/avif", "avif");
 
-fn is_jpeg(buf: &Vec<u8>) -> bool {
+fn is_jpeg(buf: &[u8]) -> bool {
     buf.len() > 2 && buf[0] == 0xFF && buf[1] == 0xD8 && buf[2] == 0xFF
 }
 
-fn is_jpeg2000(buf: &Vec<u8>) -> bool {
+fn is_jpeg2000(buf: &[u8]) -> bool {
     buf.len() > 12
         && buf[0] == 0x0
         && buf[1] == 0x0
@@ -42,19 +42,19 @@ fn is_jpeg2000(buf: &Vec<u8>) -> bool {
         && buf[12] == 0x0
 }
 
-fn is_png(buf: &Vec<u8>) -> bool {
+fn is_png(buf: &[u8]) -> bool {
     buf.len() > 3 && buf[0] == 0x89 && buf[1] == 0x50 && buf[2] == 0x4E && buf[3] == 0x47
 }
 
-fn is_gif(buf: &Vec<u8>) -> bool {
+fn is_gif(buf: &[u8]) -> bool {
     buf.len() > 2 && buf[0] == 0x47 && buf[1] == 0x49 && buf[2] == 0x46
 }
 
-fn is_webp(buf: &Vec<u8>) -> bool {
+fn is_webp(buf: &[u8]) -> bool {
     buf.len() > 11 && buf[8] == 0x57 && buf[9] == 0x45 && buf[10] == 0x42 && buf[11] == 0x50
 }
 
-fn is_cr2(buf: &Vec<u8>) -> bool {
+fn is_cr2(buf: &[u8]) -> bool {
     buf.len()> 10 &&
     ((buf[0] == 0x49 && buf[1] == 0x49 && buf[2] == 0x2A && buf[3] == 0x0) || // Little Endian
         (buf[0] == 0x4D && buf[1] == 0x4D && buf[2] == 0x0 && buf[3] == 0x2A)) && // Big Endian
@@ -62,30 +62,30 @@ fn is_cr2(buf: &Vec<u8>) -> bool {
     buf[10] == 0x02 // CR2 major version
 }
 
-fn is_tiff(buf: &Vec<u8>) -> bool {
+fn is_tiff(buf: &[u8]) -> bool {
     buf.len() > 10 &&
     ((buf[0] == 0x49 && buf[1] == 0x49 && buf[2] == 0x2A && buf[3] == 0x0) || // Little Endian
         (buf[0] == 0x4D && buf[1] == 0x4D && buf[2] == 0x0 && buf[3] == 0x2A)) && // Big Endian
     !is_cr2(buf) // To avoid conflicts differentiate Tiff from CR2
 }
 
-fn is_bmp(buf: &Vec<u8>) -> bool {
+fn is_bmp(buf: &[u8]) -> bool {
     buf.len() > 1 && buf[0] == 0x42 && buf[1] == 0x4D
 }
 
-fn is_jxr(buf: &Vec<u8>) -> bool {
+fn is_jxr(buf: &[u8]) -> bool {
     buf.len() > 2 && buf[0] == 0x49 && buf[1] == 0x49 && buf[2] == 0xBC
 }
 
-fn is_psd(buf: &Vec<u8>) -> bool {
+fn is_psd(buf: &[u8]) -> bool {
     buf.len() > 3 && buf[0] == 0x38 && buf[1] == 0x42 && buf[2] == 0x50 && buf[3] == 0x53
 }
 
-fn is_ico(buf: &Vec<u8>) -> bool {
+fn is_ico(buf: &[u8]) -> bool {
     buf.len() > 3 && buf[0] == 0x00 && buf[1] == 0x00 && buf[2] == 0x01 && buf[3] == 0x00
 }
 
-fn is_heif(buf: &Vec<u8>) -> bool {
+fn is_heif(buf: &[u8]) -> bool {
     if !is_iso_bmf(buf) {
         return false;
     }
@@ -106,15 +106,15 @@ fn is_heif(buf: &Vec<u8>) -> bool {
     false
 }
 
-fn is_dwg(buf: &Vec<u8>) -> bool {
+fn is_dwg(buf: &[u8]) -> bool {
     buf.len() > 3 && buf[0] == 0x41 && buf[1] == 0x43 && buf[2] == 0x31 && buf[3] == 0x30
 }
 
-fn is_exr(buf: &Vec<u8>) -> bool {
+fn is_exr(buf: &[u8]) -> bool {
     buf.len() > 3 && buf[0] == 0x76 && buf[1] == 0x2f && buf[2] == 0x31 && buf[3] == 0x01
 }
 
-fn is_avif(buf: &Vec<u8>) -> bool {
+fn is_avif(buf: &[u8]) -> bool {
     if !is_iso_bmf(buf) {
         return false;
     }

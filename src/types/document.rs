@@ -37,7 +37,7 @@ const TYPE_ODP: Type = new_type("application/vnd.oasis.opendocument.presentation
 const TYPE_ODS: Type = new_type("application/vnd.oasis.opendocument.spreadsheet", "ods");
 const TYPE_ODT: Type = new_type("application/vnd.oasis.opendocument.text", "odt");
 
-fn is_doc(buf: &Vec<u8>) -> bool {
+fn is_doc(buf: &[u8]) -> bool {
     (buf.len() > 513
         && buf[0] == 0xD0
         && buf[1] == 0xCF
@@ -48,7 +48,7 @@ fn is_doc(buf: &Vec<u8>) -> bool {
         || (buf.len() > 3 && buf[0] == 0xD0 && buf[1] == 0xCF && buf[2] == 0x11 && buf[3] == 0xE0)
 }
 
-fn is_docx(buf: &Vec<u8>) -> bool {
+fn is_docx(buf: &[u8]) -> bool {
     let (code, ok) = msooxml(buf);
     match code {
         TypeCode::CodeDOCX => ok,
@@ -56,7 +56,7 @@ fn is_docx(buf: &Vec<u8>) -> bool {
     }
 }
 
-fn is_xls(buf: &Vec<u8>) -> bool {
+fn is_xls(buf: &[u8]) -> bool {
     (buf.len() > 513
         && buf[0] == 0xD0
         && buf[1] == 0xCF
@@ -67,7 +67,7 @@ fn is_xls(buf: &Vec<u8>) -> bool {
         || (buf.len() > 3 && buf[0] == 0xD0 && buf[1] == 0xCF && buf[2] == 0x11 && buf[3] == 0xE0)
 }
 
-fn is_xlsx(buf: &Vec<u8>) -> bool {
+fn is_xlsx(buf: &[u8]) -> bool {
     let (code, ok) = msooxml(buf);
     match code {
         TypeCode::CodeXLSX => ok,
@@ -75,7 +75,7 @@ fn is_xlsx(buf: &Vec<u8>) -> bool {
     }
 }
 
-fn is_ppt(buf: &Vec<u8>) -> bool {
+fn is_ppt(buf: &[u8]) -> bool {
     (buf.len() > 513
         && buf[0] == 0xD0
         && buf[1] == 0xCF
@@ -86,7 +86,7 @@ fn is_ppt(buf: &Vec<u8>) -> bool {
         || (buf.len() > 3 && buf[0] == 0xD0 && buf[1] == 0xCF && buf[2] == 0x11 && buf[3] == 0xE0)
 }
 
-fn is_pptx(buf: &Vec<u8>) -> bool {
+fn is_pptx(buf: &[u8]) -> bool {
     let (code, ok) = msooxml(buf);
     match code {
         TypeCode::CodePPTX => ok,
@@ -94,7 +94,7 @@ fn is_pptx(buf: &Vec<u8>) -> bool {
     }
 }
 
-fn msooxml(buf: &Vec<u8>) -> (TypeCode, bool) {
+fn msooxml(buf: &[u8]) -> (TypeCode, bool) {
     let signature = vec![b'P', b'K', 0x03, 0x04];
     if !compare_bytes(buf, &signature, 0) {
         return (TypeCode::CodeNone, false);
@@ -116,7 +116,7 @@ fn msooxml(buf: &Vec<u8>) -> (TypeCode, bool) {
     (TypeCode::CodeNone, false)
 }
 
-fn check_msooml(buf: &Vec<u8>, offset: usize) -> (TypeCode, bool) {
+fn check_msooml(buf: &[u8], offset: usize) -> (TypeCode, bool) {
     if compare_bytes(buf, &b"word/".to_vec(), offset) {
         (TypeCode::CodeDOCX, true)
     } else if compare_bytes(buf, &b"ppt/".to_vec(), offset) {
@@ -128,21 +128,21 @@ fn check_msooml(buf: &Vec<u8>, offset: usize) -> (TypeCode, bool) {
     }
 }
 
-fn is_odp(buf: &Vec<u8>) -> bool {
+fn is_odp(buf: &[u8]) -> bool {
     check_odf(buf, TYPE_ODP.mime)
 }
 
-fn is_ods(buf: &Vec<u8>) -> bool {
+fn is_ods(buf: &[u8]) -> bool {
     check_odf(buf, TYPE_ODS.mime)
 }
 
-fn is_odt(buf: &Vec<u8>) -> bool {
+fn is_odt(buf: &[u8]) -> bool {
     check_odf(buf, TYPE_ODT.mime)
 }
 
 // https://en.wikipedia.org/wiki/OpenDocument_technical_specification
 // https://en.wikipedia.org/wiki/ZIP_(file_format)
-fn check_odf(buf: &Vec<u8>, mimetype: &str) -> bool {
+fn check_odf(buf: &[u8], mimetype: &str) -> bool {
     if 38 + mimetype.len() > buf.len() {
         return false;
     }

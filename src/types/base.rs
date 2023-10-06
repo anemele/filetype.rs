@@ -26,5 +26,5 @@ impl PartialEq for Type<'_> {
     }
 }
 
-pub type TypeMatcher = fn(&Vec<u8>) -> bool;
+pub type TypeMatcher = fn(&[u8]) -> bool;
 pub type TypeTypesMatcher = HashMap<Type<'static>, TypeMatcher>;

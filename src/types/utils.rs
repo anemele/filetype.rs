@@ -1,8 +1,8 @@
 use std::{io::Cursor, str};
 
-use byteorder::{BigEndian, ReadBytesExt};
+use byteorder::{BigEndian, LittleEndian, ReadBytesExt};
 
-pub fn compare_bytes(slice: &Vec<u8>, subs: &Vec<u8>, offset: usize) -> bool {
+pub fn compare_bytes(slice: &[u8], subs: &[u8], offset: usize) -> bool {
     let s1 = subs.len();
     if s1 + offset > slice.len() {
         return false;
@@ -17,15 +17,22 @@ pub fn compare_bytes(slice: &Vec<u8>, subs: &Vec<u8>, offset: usize) -> bool {
     true
 }
 
-fn bigendian_bytes(buf: &[u8]) -> u32 {
+pub fn bigendian_bytes(buf: &[u8]) -> u32 {
     Cursor::new(buf).read_u32::<BigEndian>().unwrap()
 }
 
-fn bytes_to_str(buf: &[u8]) -> &str {
-    str::from_utf8(&buf).unwrap()
+pub fn littleendian_bytes(buf: &[u8]) -> u32 {
+    Cursor::new(buf).read_u32::<LittleEndian>().unwrap()
 }
 
-pub fn is_iso_bmf(buf: &Vec<u8>) -> bool {
+fn bytes_to_str(buf: &[u8]) -> &str {
+    match str::from_utf8(&buf) {
+        Ok(s) => s,
+        Err(_) => "",
+    }
+}
+
+pub fn is_iso_bmf(buf: &[u8]) -> bool {
     if buf.len() < 16 || bytes_to_str(&buf[4..8]) != "ftyp" {
         return false;
     }
@@ -34,7 +41,7 @@ pub fn is_iso_bmf(buf: &Vec<u8>) -> bool {
     buf.len() >= int.try_into().unwrap()
 }
 
-pub fn get_ftyp(buf: &Vec<u8>) -> (&str, &str, Vec<&str>) {
+pub fn get_ftyp(buf: &[u8]) -> (&str, &str, Vec<&str>) {
     let buf_len = buf.len();
     if buf_len < 17 {
         return ("", "", vec![""]);
@@ -55,4 +62,41 @@ pub fn get_ftyp(buf: &Vec<u8>) -> (&str, &str, Vec<&str>) {
         bytes_to_str(&buf[12..16]),
         compatible_brands,
     )
+}
+
+// try to implement bytes.Index in Go
+pub fn bytes_index(buf: &[u8], subs: &[u8]) -> i32 {
+    let (len1, len2) = (buf.len(), subs.len());
+
+    if len2 == 0 {
+        return 0;
+    }
+    if len2 > len1 {
+        return -1;
+    }
+
+    for i in 0..=len1 - len2 {
+        let mut flag = true;
+        for j in 0..len2 {
+            if subs[j] != buf[i + j] {
+                flag = false;
+                break;
+            }
+        }
+        if flag {
+            return i as i32;
+        }
+    }
+
+    -1
+}
+
+#[test]
+fn test_bytes_index() {
+    assert_eq!(0, bytes_index(b"abc", b""));
+    assert_eq!(0, bytes_index(b"abc", b"a"));
+    assert_eq!(-1, bytes_index(b"a", b"subs"));
+    assert_eq!(1, bytes_index(b"abc", b"b"));
+    assert_eq!(2, bytes_index(b"abcab", b"cab"));
+    assert_eq!(-1, bytes_index(b"abc", b"cd"));
 }
