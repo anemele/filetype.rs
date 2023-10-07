@@ -76,14 +76,7 @@ pub fn bytes_index(buf: &[u8], subs: &[u8]) -> i32 {
     }
 
     for i in 0..=len1 - len2 {
-        let mut flag = true;
-        for j in 0..len2 {
-            if subs[j] != buf[i + j] {
-                flag = false;
-                break;
-            }
-        }
-        if flag {
+        if *subs == buf[i..i + len2] {
             return i as i32;
         }
     }
