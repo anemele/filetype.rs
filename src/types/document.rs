@@ -37,15 +37,14 @@ const TYPE_ODP: Type = new_type("application/vnd.oasis.opendocument.presentation
 const TYPE_ODS: Type = new_type("application/vnd.oasis.opendocument.spreadsheet", "ods");
 const TYPE_ODT: Type = new_type("application/vnd.oasis.opendocument.text", "odt");
 
+// doc, xls, ppt have problems
+// see: https://bz.apache.org/ooo/show_bug.cgi?id=111457
 fn is_doc(buf: &[u8]) -> bool {
-    (buf.len() > 513
-        && buf[0] == 0xD0
-        && buf[1] == 0xCF
-        && buf[2] == 0x11
-        && buf[3] == 0xE0
-        && buf[512] == 0xEC
-        && buf[513] == 0xA5)
-        || (buf.len() > 3 && buf[0] == 0xD0 && buf[1] == 0xCF && buf[2] == 0x11 && buf[3] == 0xE0)
+    if buf.len() > 513 {
+        buf[..4] == [0xD0, 0xCF, 0x11, 0xE0] && buf[512] == 0xEC && buf[513] == 0xA5
+    } else {
+        buf.len() > 3 && buf[..4] == [0xD0, 0xCF, 0x11, 0xE0]
+    }
 }
 
 fn is_docx(buf: &[u8]) -> bool {
@@ -57,14 +56,11 @@ fn is_docx(buf: &[u8]) -> bool {
 }
 
 fn is_xls(buf: &[u8]) -> bool {
-    (buf.len() > 513
-        && buf[0] == 0xD0
-        && buf[1] == 0xCF
-        && buf[2] == 0x11
-        && buf[3] == 0xE0
-        && buf[512] == 0x09
-        && buf[513] == 0x08)
-        || (buf.len() > 3 && buf[0] == 0xD0 && buf[1] == 0xCF && buf[2] == 0x11 && buf[3] == 0xE0)
+    if buf.len() > 513 {
+        buf[..4] == [0xD0, 0xCF, 0x11, 0xE0] && buf[512] == 0x09 && buf[513] == 0x08
+    } else {
+        buf.len() > 3 && buf[..4] == [0xD0, 0xCF, 0x11, 0xE0]
+    }
 }
 
 fn is_xlsx(buf: &[u8]) -> bool {
@@ -76,14 +72,11 @@ fn is_xlsx(buf: &[u8]) -> bool {
 }
 
 fn is_ppt(buf: &[u8]) -> bool {
-    (buf.len() > 513
-        && buf[0] == 0xD0
-        && buf[1] == 0xCF
-        && buf[2] == 0x11
-        && buf[3] == 0xE0
-        && buf[512] == 0xA0
-        && buf[513] == 0x46)
-        || (buf.len() > 3 && buf[0] == 0xD0 && buf[1] == 0xCF && buf[2] == 0x11 && buf[3] == 0xE0)
+    if buf.len() > 513 {
+        buf[..4] == [0xD0, 0xCF, 0x11, 0xE0] && buf[512] == 0xA0 && buf[513] == 0x46
+    } else {
+        buf.len() > 3 && buf[..4] == [0xD0, 0xCF, 0x11, 0xE0]
+    }
 }
 
 fn is_pptx(buf: &[u8]) -> bool {

@@ -41,7 +41,7 @@ mod tests {
         test(match_archive, "sample.tar", "application/x-tar", "tar");
     }
 
-    #[ignore = "have problems"]
+    #[ignore = "MS Office 95"]
     #[test]
     fn test_document_2003() {
         test(match_document, "sample.doc", "application/msword", "doc");
@@ -59,7 +59,6 @@ mod tests {
         );
     }
 
-    // #[ignore = "all is `zip` ?"]
     #[test]
     fn test_document() {
         test(
