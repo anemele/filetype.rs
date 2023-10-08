@@ -1,8 +1,7 @@
 use super::{
-    base::{new_type, Type, TypeMatcher, TypeTypesMatcher},
+    base::{new_type, HashMapTypeMatcher, Type},
     utils::{compare_bytes, littleendian_bytes},
 };
-use std::collections::HashMap;
 
 const TYPE_EPUB: Type = new_type("application/epub+zip", "epub");
 const TYPE_ZIP: Type = new_type("application/zip", "zip");
@@ -32,15 +31,6 @@ const TYPE_ELF: Type = new_type("application/x-executable", "elf");
 const TYPE_DCM: Type = new_type("application/dicom", "dcm");
 const TYPE_ISO: Type = new_type("application/x-iso9660-image", "iso");
 const TYPE_MACHO: Type = new_type("application/x-mach-binary", "macho"); // Mach-O binaries have no common extension.
-
-// fn bytes_prefix_matcher(magic_pattern: &[u8]) -> fn(&[u8]) -> bool {
-//     // fn matcher(data: &[u8]) -> bool {
-//     //     compare_bytes(data, magic_pattern, 0)
-//     // }
-//     // matcher
-
-//     |data: &[u8]| compare_bytes(data, magic_pattern, 0)
-// }
 
 fn is_epub(buf: &[u8]) -> bool {
     let subs = [
@@ -133,12 +123,8 @@ fn is_zip(buf: &[u8]) -> bool {
 }
 
 fn is_tar(buf: &[u8]) -> bool {
-    buf.len() > 261
-        && buf[257] == 0x75
-        && buf[258] == 0x73
-        && buf[259] == 0x74
-        && buf[260] == 0x61
-        && buf[261] == 0x72
+    let subs = [0x75, 0x73, 0x74, 0x61, 0x72];
+    compare_bytes(buf, &subs, 257)
 }
 
 fn is_rar(buf: &[u8]) -> bool {
@@ -188,12 +174,8 @@ fn is_dcm(buf: &[u8]) -> bool {
 }
 
 fn is_iso(buf: &[u8]) -> bool {
-    buf.len() > 32773
-        && buf[32769] == 0x43
-        && buf[32770] == 0x44
-        && buf[32771] == 0x30
-        && buf[32772] == 0x30
-        && buf[32773] == 0x31
+    let subs = [0x43, 0x44, 0x30, 0x30, 0x31];
+    compare_bytes(buf, &subs, 32769)
 }
 
 fn is_macho(buf: &[u8]) -> bool {
@@ -230,8 +212,8 @@ fn is_zst(buf: &[u8]) -> bool {
     false
 }
 
-pub fn sum() -> TypeTypesMatcher {
-    let mut ret = HashMap::<Type, TypeMatcher>::new();
+pub fn sum() -> HashMapTypeMatcher {
+    let mut ret = HashMapTypeMatcher::new();
 
     // ret.insert(XXX, is_xxx);
     ret.insert(TYPE_ZIP, is_zip);

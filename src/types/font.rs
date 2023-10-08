@@ -1,5 +1,4 @@
-use super::base::{new_type, Type, TypeMatcher, TypeTypesMatcher};
-use std::collections::HashMap;
+use super::base::{new_type, HashMapTypeMatcher, Type};
 
 const TYPE_WOFF: Type = new_type("application/font-woff", "woff");
 const TYPE_WOFF2: Type = new_type("application/font-woff", "woff2");
@@ -48,8 +47,8 @@ fn is_otf(buf: &[u8]) -> bool {
         && buf[4] == 0x00
 }
 
-pub fn sum() -> TypeTypesMatcher {
-    let mut ret = HashMap::<Type, TypeMatcher>::new();
+pub fn sum() -> HashMapTypeMatcher {
+    let mut ret = HashMapTypeMatcher::new();
 
     // ret.insert(XXX, is_xxx);
     ret.insert(TYPE_WOFF, is_woff);

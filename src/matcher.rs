@@ -1,11 +1,11 @@
 use crate::{
     constants::NUM_SIGNATURE_BYTES,
-    types::{self, Type, TypeTypesMatcher, TYPE_UNKNOWN},
+    types::{self, HashMapTypeMatcher, Type, TYPE_UNKNOWN},
     utils::get_signature_bytes,
 };
 use std::path::Path;
 
-fn match_wrapper(path: &Path, tm: TypeTypesMatcher) -> Type {
+fn match_wrapper(path: &Path, tm: HashMapTypeMatcher) -> Type {
     let mut sig = [0_u8; NUM_SIGNATURE_BYTES];
     get_signature_bytes(path, &mut sig);
     for (t, m) in tm {

@@ -37,5 +37,5 @@ impl fmt::Display for Type<'_> {
     }
 }
 
-pub type TypeMatcher = fn(&[u8]) -> bool;
-pub type TypeTypesMatcher = HashMap<Type<'static>, TypeMatcher>;
+pub type Matcher = fn(&[u8]) -> bool;
+pub type HashMapTypeMatcher = HashMap<Type<'static>, Matcher>;

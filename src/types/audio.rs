@@ -1,5 +1,4 @@
-use super::base::{new_type, Type, TypeMatcher, TypeTypesMatcher};
-use std::collections::HashMap;
+use super::base::{new_type, HashMapTypeMatcher, Type};
 
 const TYPE_MIDI: Type = new_type("audio/midi", "mid");
 const TYPE_MP3: Type = new_type("audio/mpeg", "mp3");
@@ -79,8 +78,8 @@ fn is_aiff(buf: &[u8]) -> bool {
         && buf[11] == 0x46
 }
 
-pub fn sum() -> TypeTypesMatcher {
-    let mut ret = HashMap::<Type, TypeMatcher>::new();
+pub fn sum() -> HashMapTypeMatcher {
+    let mut ret = HashMapTypeMatcher::new();
 
     // ret.insert(XXX, is_xxx);
     ret.insert(TYPE_MIDI, is_midi);

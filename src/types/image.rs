@@ -1,8 +1,6 @@
-use std::collections::HashMap;
-
 use super::{
-    base::{new_type, Type, TypeMatcher, TypeTypesMatcher},
-    utils::{get_ftyp, is_iso_bmf},
+    base::{new_type, HashMapTypeMatcher, Type},
+    utils::image::{get_ftyp, is_iso_bmf},
 };
 
 const TYPE_JPEG: Type = new_type("image/jpeg", "jpg");
@@ -130,8 +128,8 @@ fn is_avif(buf: &[u8]) -> bool {
     false
 }
 
-pub fn sum() -> TypeTypesMatcher {
-    let mut ret = HashMap::<Type, TypeMatcher>::new();
+pub fn sum() -> HashMapTypeMatcher {
+    let mut ret = HashMapTypeMatcher::new();
 
     ret.insert(TYPE_JPEG, is_jpeg);
     ret.insert(TYPE_JPEG2000, is_jpeg2000);

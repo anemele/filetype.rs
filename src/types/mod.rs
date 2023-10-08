@@ -8,14 +8,12 @@ pub mod image;
 mod utils;
 pub mod video;
 
-use std::collections::HashMap;
-
+pub use base::HashMapTypeMatcher;
 pub use base::Type;
 pub use base::TYPE_UNKNOWN;
-pub use base::{TypeMatcher, TypeTypesMatcher};
 
-pub fn sum() -> TypeTypesMatcher {
-    let mut ret = HashMap::<Type, TypeMatcher>::new();
+pub fn sum() -> HashMapTypeMatcher {
+    let mut ret = HashMapTypeMatcher::new();
 
     ret.extend(application::sum());
     ret.extend(archive::sum());
