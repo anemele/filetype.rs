@@ -1,6 +1,6 @@
-use filetypes::match_all;
+use filetypes::matcher::match_all;
 use glob::glob;
-use std::env::{self};
+use std::env;
 use std::path::MAIN_SEPARATOR_STR;
 
 fn main() {
@@ -25,7 +25,8 @@ fn main() {
             for entry in paths {
                 if let Ok(path) = entry {
                     if path.is_file() {
-                        match_all(path.as_path());
+                        let t = match_all(path.as_path());
+                        println!("{}: {}", path.display(), t);
                     }
                 }
             }

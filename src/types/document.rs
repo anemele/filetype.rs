@@ -95,7 +95,7 @@ fn is_pptx(buf: &[u8]) -> bool {
 }
 
 fn msooxml(buf: &[u8]) -> (TypeCode, bool) {
-    let signature = vec![b'P', b'K', 0x03, 0x04];
+    let signature = [b'P', b'K', 0x03, 0x04];
     if !compare_bytes(buf, &signature, 0) {
         return (TypeCode::CodeNone, false);
     }
@@ -105,10 +105,10 @@ fn msooxml(buf: &[u8]) -> (TypeCode, bool) {
         return (code, ok);
     }
 
-    if !compare_bytes(buf, &b"[Content_Types].xml".to_vec(), 0x1E)
-        && !compare_bytes(buf, &b"_rels/.rels".to_vec(), 0x1E)
-        && !compare_bytes(buf, &b"docProps".to_vec(), 0x1E)
-        && !compare_bytes(buf, &b"_rels".to_vec(), 0x1E)
+    if !compare_bytes(buf, b"[Content_Types].xml", 0x1E)
+        && !compare_bytes(buf, b"_rels/.rels", 0x1E)
+        && !compare_bytes(buf, b"docProps", 0x1E)
+        && !compare_bytes(buf, b"_rels", 0x1E)
     {
         return (TypeCode::CodeNone, false);
     }
@@ -117,11 +117,11 @@ fn msooxml(buf: &[u8]) -> (TypeCode, bool) {
 }
 
 fn check_msooml(buf: &[u8], offset: usize) -> (TypeCode, bool) {
-    if compare_bytes(buf, &b"word/".to_vec(), offset) {
+    if compare_bytes(buf, b"word/", offset) {
         (TypeCode::CodeDOCX, true)
-    } else if compare_bytes(buf, &b"ppt/".to_vec(), offset) {
+    } else if compare_bytes(buf, b"ppt/", offset) {
         (TypeCode::CodePPTX, true)
-    } else if compare_bytes(buf, &b"xl/".to_vec(), offset) {
+    } else if compare_bytes(buf, b"xl/", offset) {
         (TypeCode::CodeXLSX, true)
     } else {
         (TypeCode::CodeNone, false)
@@ -177,7 +177,7 @@ fn check_odf(buf: &[u8], mimetype: &str) -> bool {
         return false;
     }
     // Finally check the file name and contents
-    return buf[30..38] == b"mimetype".to_vec()
+    return buf[30..38] == *b"mimetype"
         && buf[38..38 + mimetype.len()] == *mimetype.as_bytes();
 }
 

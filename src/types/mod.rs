@@ -1,17 +1,18 @@
-mod application;
-mod archive;
-mod audio;
+pub mod application;
+pub mod archive;
+pub mod audio;
 mod base;
-mod document;
-mod font;
-mod image;
+pub mod document;
+pub mod font;
+pub mod image;
 mod utils;
-mod video;
+pub mod video;
 
 use std::collections::HashMap;
 
+pub use base::Type;
 pub use base::TYPE_UNKNOWN;
-use base::{Type, TypeMatcher, TypeTypesMatcher};
+pub use base::{TypeMatcher, TypeTypesMatcher};
 
 pub fn sum() -> TypeTypesMatcher {
     let mut ret = HashMap::<Type, TypeMatcher>::new();

@@ -22,67 +22,63 @@ const TYPE_EXR: Type = new_type("image/x-exr", "exr");
 const TYPE_AVIF: Type = new_type("image/avif", "avif");
 
 fn is_jpeg(buf: &[u8]) -> bool {
-    buf.len() > 2 && buf[0] == 0xFF && buf[1] == 0xD8 && buf[2] == 0xFF
+    buf.len() > 2 && buf[..3] == [0xFF, 0xD8, 0xFF]
 }
 
 fn is_jpeg2000(buf: &[u8]) -> bool {
     buf.len() > 12
-        && buf[0] == 0x0
-        && buf[1] == 0x0
-        && buf[2] == 0x0
-        && buf[3] == 0xC
-        && buf[4] == 0x6A
-        && buf[5] == 0x50
-        && buf[6] == 0x20
-        && buf[7] == 0x20
-        && buf[8] == 0xD
-        && buf[9] == 0xA
-        && buf[10] == 0x87
-        && buf[11] == 0xA
-        && buf[12] == 0x0
+        && buf[..13]
+            == [
+                0x0, 0x0, 0x0, 0xC, 0x6A, 0x50, 0x20, 0x20, 0xD, 0xA, 0x87, 0xA, 0x0,
+            ]
 }
 
 fn is_png(buf: &[u8]) -> bool {
-    buf.len() > 3 && buf[0] == 0x89 && buf[1] == 0x50 && buf[2] == 0x4E && buf[3] == 0x47
+    buf.len() > 3 && buf[..4] == [0x89, 0x50, 0x4E, 0x47]
 }
 
 fn is_gif(buf: &[u8]) -> bool {
-    buf.len() > 2 && buf[0] == 0x47 && buf[1] == 0x49 && buf[2] == 0x46
+    buf.len() > 2 && buf[..3] == [0x47, 0x49, 0x46]
 }
 
 fn is_webp(buf: &[u8]) -> bool {
-    buf.len() > 11 && buf[8] == 0x57 && buf[9] == 0x45 && buf[10] == 0x42 && buf[11] == 0x50
+    buf.len() > 11 && buf[8..12] == [0x57, 0x45, 0x42, 0x50]
 }
 
 fn is_cr2(buf: &[u8]) -> bool {
-    buf.len()> 10 &&
-    ((buf[0] == 0x49 && buf[1] == 0x49 && buf[2] == 0x2A && buf[3] == 0x0) || // Little Endian
-        (buf[0] == 0x4D && buf[1] == 0x4D && buf[2] == 0x0 && buf[3] == 0x2A)) && // Big Endian
-    buf[8] == 0x43 && buf[9] == 0x52 && // CR2 magic word
+    buf.len() > 10 &&
+    (
+        buf[..4] == [0x49, 0x49, 0x2A, 0x00] || // Little Endian
+        buf[..4] == [0x4D, 0x4D, 0x00, 0x2A] // Big Endian
+    ) &&
+    buf[8..10] == [0x43, 0x52] && // CR2 magic word
     buf[10] == 0x02 // CR2 major version
 }
 
 fn is_tiff(buf: &[u8]) -> bool {
-    buf.len() > 10 &&
-    ((buf[0] == 0x49 && buf[1] == 0x49 && buf[2] == 0x2A && buf[3] == 0x0) || // Little Endian
-        (buf[0] == 0x4D && buf[1] == 0x4D && buf[2] == 0x0 && buf[3] == 0x2A)) && // Big Endian
-    !is_cr2(buf) // To avoid conflicts differentiate Tiff from CR2
+    buf.len() > 10
+        && (
+            buf[..4] == [ 0x49, 0x49, 0x2A, 0x00 ] || // Little Endian
+        buf[..4] == [ 0x4D, 0x4D, 0x00, 0x2A ]
+            // Big Endian
+        )
+        && !is_cr2(buf) // To avoid conflicts differentiate Tiff from CR2
 }
 
 fn is_bmp(buf: &[u8]) -> bool {
-    buf.len() > 1 && buf[0] == 0x42 && buf[1] == 0x4D
+    buf.len() > 1 && buf[..2] == [0x42, 0x4D]
 }
 
 fn is_jxr(buf: &[u8]) -> bool {
-    buf.len() > 2 && buf[0] == 0x49 && buf[1] == 0x49 && buf[2] == 0xBC
+    buf.len() > 2 && buf[..3] == [0x49, 0x49, 0xBC]
 }
 
 fn is_psd(buf: &[u8]) -> bool {
-    buf.len() > 3 && buf[0] == 0x38 && buf[1] == 0x42 && buf[2] == 0x50 && buf[3] == 0x53
+    buf.len() > 3 && buf[..4] == [0x38, 0x42, 0x50, 0x53]
 }
 
 fn is_ico(buf: &[u8]) -> bool {
-    buf.len() > 3 && buf[0] == 0x00 && buf[1] == 0x00 && buf[2] == 0x01 && buf[3] == 0x00
+    buf.len() > 3 && buf[..4] == [0x00, 0x00, 0x01, 0x00]
 }
 
 fn is_heif(buf: &[u8]) -> bool {
@@ -107,11 +103,11 @@ fn is_heif(buf: &[u8]) -> bool {
 }
 
 fn is_dwg(buf: &[u8]) -> bool {
-    buf.len() > 3 && buf[0] == 0x41 && buf[1] == 0x43 && buf[2] == 0x31 && buf[3] == 0x30
+    buf.len() > 3 && buf[..4] == [0x41, 0x43, 0x31, 0x30]
 }
 
 fn is_exr(buf: &[u8]) -> bool {
-    buf.len() > 3 && buf[0] == 0x76 && buf[1] == 0x2f && buf[2] == 0x31 && buf[3] == 0x01
+    buf.len() > 3 && buf[..4] == [0x76, 0x2f, 0x31, 0x01]
 }
 
 fn is_avif(buf: &[u8]) -> bool {

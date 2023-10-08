@@ -1,6 +1,4 @@
 mod constants;
-mod matcher;
-mod types;
+pub mod matcher;
+pub mod types;
 mod utils;
-
-pub use matcher::match_all;
