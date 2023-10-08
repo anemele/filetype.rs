@@ -59,7 +59,7 @@ mod tests {
         );
     }
 
-    #[ignore = "all is `zip` ?"]
+    // #[ignore = "all is `zip` ?"]
     #[test]
     fn test_document() {
         test(

@@ -1,6 +1,6 @@
 [package]
 name = "filetypes"
-version = "0.1.0"
+version = "0.1.1"
 edition = "2021"
 description = "Determine file type via magic numbers."
 homepage = "https://github.com/anemele/filetype.rs"

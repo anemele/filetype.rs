@@ -1,6 +1,6 @@
 use super::{
     base::{new_type, Type, TypeMatcher, TypeTypesMatcher},
-    utils::compare_bytes,
+    utils::{bytes_index, compare_bytes, littleendian_bytes},
 };
 use std::collections::HashMap;
 
@@ -12,7 +12,7 @@ enum TypeCode {
     CodeXLSX,
     _CodePPT,
     CodePPTX,
-    _CodeOOXML,
+    CodeOOXML,
     _CodeODP,
     _CodeODS,
     _CodeODT,
@@ -95,9 +95,10 @@ fn is_pptx(buf: &[u8]) -> bool {
 }
 
 fn msooxml(buf: &[u8]) -> (TypeCode, bool) {
+    let ret = (TypeCode::CodeNone, false);
     let signature = [b'P', b'K', 0x03, 0x04];
     if !compare_bytes(buf, &signature, 0) {
-        return (TypeCode::CodeNone, false);
+        return ret;
     }
 
     let (code, ok) = check_msooml(buf, 0x1E);
@@ -110,10 +111,40 @@ fn msooxml(buf: &[u8]) -> (TypeCode, bool) {
         && !compare_bytes(buf, b"docProps", 0x1E)
         && !compare_bytes(buf, b"_rels", 0x1E)
     {
-        return (TypeCode::CodeNone, false);
+        return ret;
     }
 
-    (TypeCode::CodeNone, false)
+    let mut start_offset = littleendian_bytes(&buf[18..22]) + 49;
+    let index = search(buf, start_offset, 6000);
+    if index == u32::MAX {
+        return ret;
+    }
+
+    start_offset += index + 4 + 26;
+    let index = search(buf, start_offset, 6000);
+    if index == u32::MAX {
+        return ret;
+    }
+
+    start_offset += index + 4 + 26;
+    let (code, ok) = check_msooml(buf, start_offset as usize);
+    if ok {
+        return (code, ok);
+    }
+
+    start_offset += 26;
+    let index = search(buf, start_offset, 6000);
+    if index == u32::MAX {
+        return (TypeCode::CodeOOXML, true);
+    }
+
+    start_offset += index + 4 + 26;
+    let (code, ok) = check_msooml(buf, start_offset as usize);
+    if ok {
+        return (code, ok);
+    }
+
+    (TypeCode::CodeOOXML, true)
 }
 
 fn check_msooml(buf: &[u8], offset: usize) -> (TypeCode, bool) {
@@ -126,6 +157,16 @@ fn check_msooml(buf: &[u8], offset: usize) -> (TypeCode, bool) {
     } else {
         (TypeCode::CodeNone, false)
     }
+}
+
+fn search(buf: &[u8], start: u32, range_num: u32) -> u32 {
+    let end = (start + range_num).min(buf.len() as u32);
+    if start >= end {
+        return u32::MAX;
+    }
+
+    let signature = [b'P', b'K', 0x03, 0x04];
+    bytes_index(&buf[start as usize..end as usize], &signature)
 }
 
 fn is_odp(buf: &[u8]) -> bool {
@@ -177,8 +218,7 @@ fn check_odf(buf: &[u8], mimetype: &str) -> bool {
         return false;
     }
     // Finally check the file name and contents
-    return buf[30..38] == *b"mimetype"
-        && buf[38..38 + mimetype.len()] == *mimetype.as_bytes();
+    return buf[30..38] == *b"mimetype" && buf[38..38 + mimetype.len()] == *mimetype.as_bytes();
 }
 
 pub fn sum() -> TypeTypesMatcher {
