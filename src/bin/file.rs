@@ -13,7 +13,7 @@ fn main() {
 
     if args.len() == 0 {
         println!(
-            "Determine file type via magic numbers, wildcards support.\nUsage: {} <file> [file ...] ",
+            "Determine file type via magic numbers, wildcards support.\nUsage: {} <FILE>...",
             prog
         );
         return;
