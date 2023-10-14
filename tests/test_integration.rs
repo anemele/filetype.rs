@@ -41,21 +41,25 @@ mod tests {
         test(match_archive, "sample.tar", "application/x-tar", "tar");
     }
 
-    #[ignore = "MS Office 95"]
     #[test]
     fn test_document_2003() {
-        test(match_document, "sample.doc", "application/msword", "doc");
+        test(
+            match_document,
+            "sample.doc",
+            "application/ms-office",
+            "doc/xls/ppt",
+        );
         test(
             match_document,
             "sample.ppt",
-            "application/vnd.ms-powerpoint",
-            "ppt",
+            "application/ms-office",
+            "doc/xls/ppt",
         );
         test(
             match_document,
             "sample.xls",
-            "application/vnd.ms-excel",
-            "xls",
+            "application/ms-office",
+            "doc/xls/ppt",
         );
     }
 

@@ -1,12 +1,12 @@
 [package]
 name = "filetypes"
-version = "0.1.1"
+version = "0.1.2"
 edition = "2021"
 description = "Determine file type via magic numbers."
 homepage = "https://github.com/anemele/filetype.rs"
 repository = "https://github.com/anemele/filetype.rs"
 keywords = ["filetype", "filetypes", "match"]
-categories = ["file-type-match"]
+categories = ["command-line-utilities", "command-line-interface"]
 license = "MIT"
 
 exclude = ["tests"]

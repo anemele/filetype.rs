@@ -24,12 +24,15 @@ const TYPE_ODT: Type = new_type("application/vnd.oasis.opendocument.text", "odt"
 
 // doc, xls, ppt have problems
 // see: https://bz.apache.org/ooo/show_bug.cgi?id=111457
+// ref: https://www.zhihu.com/tardis/zm/art/51605552
+const TYPE_OFFICE_UNDER_2003: Type = new_type("application/ms-office.under-2003", "doc/xls/ppt");
+
+fn is_office_under_2003(buf: &[u8]) -> bool {
+    buf.len() > 3 && buf[..4] == [0xD0, 0xCF, 0x11, 0xE0]
+}
+
 fn is_doc(buf: &[u8]) -> bool {
-    if buf.len() > 513 {
-        buf[..4] == [0xD0, 0xCF, 0x11, 0xE0] && buf[512] == 0xEC && buf[513] == 0xA5
-    } else {
-        buf.len() > 3 && buf[..4] == [0xD0, 0xCF, 0x11, 0xE0]
-    }
+    buf.len() > 513 && buf[..4] == [0xD0, 0xCF, 0x11, 0xE0] && buf[512] == 0xEC && buf[513] == 0xA5
 }
 
 fn is_docx(buf: &[u8]) -> bool {
@@ -41,11 +44,7 @@ fn is_docx(buf: &[u8]) -> bool {
 }
 
 fn is_xls(buf: &[u8]) -> bool {
-    if buf.len() > 513 {
-        buf[..4] == [0xD0, 0xCF, 0x11, 0xE0] && buf[512] == 0x09 && buf[513] == 0x08
-    } else {
-        buf.len() > 3 && buf[..4] == [0xD0, 0xCF, 0x11, 0xE0]
-    }
+    buf.len() > 513 && buf[..4] == [0xD0, 0xCF, 0x11, 0xE0] && buf[512] == 0x09 && buf[513] == 0x08
 }
 
 fn is_xlsx(buf: &[u8]) -> bool {
@@ -57,11 +56,7 @@ fn is_xlsx(buf: &[u8]) -> bool {
 }
 
 fn is_ppt(buf: &[u8]) -> bool {
-    if buf.len() > 513 {
-        buf[..4] == [0xD0, 0xCF, 0x11, 0xE0] && buf[512] == 0xA0 && buf[513] == 0x46
-    } else {
-        buf.len() > 3 && buf[..4] == [0xD0, 0xCF, 0x11, 0xE0]
-    }
+    buf.len() > 513 && buf[..4] == [0xD0, 0xCF, 0x11, 0xE0] && buf[512] == 0xA0 && buf[513] == 0x46
 }
 
 fn is_pptx(buf: &[u8]) -> bool {
@@ -97,6 +92,7 @@ pub fn sum() -> HashMapTypeMatcher {
     ret.insert(TYPE_ODP, is_odp);
     ret.insert(TYPE_ODS, is_ods);
     ret.insert(TYPE_ODT, is_odt);
+    ret.insert(TYPE_OFFICE_UNDER_2003, is_office_under_2003);
 
     ret
 }
