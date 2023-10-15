@@ -25,7 +25,7 @@ const TYPE_ODT: Type = new_type("application/vnd.oasis.opendocument.text", "odt"
 // doc, xls, ppt have problems
 // see: https://bz.apache.org/ooo/show_bug.cgi?id=111457
 // ref: https://www.zhihu.com/tardis/zm/art/51605552
-const TYPE_OFFICE_UNDER_2003: Type = new_type("application/ms-office.under-2003", "doc/xls/ppt");
+const TYPE_OFFICE_UNDER_2003: Type = new_type("application/ms-office.under-2003", "doc xls ppt");
 
 fn is_office_under_2003(buf: &[u8]) -> bool {
     buf.len() > 3 && buf[..4] == [0xD0, 0xCF, 0x11, 0xE0]
