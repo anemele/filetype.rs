@@ -46,20 +46,20 @@ mod tests {
         test(
             match_document,
             "sample.doc",
-            "application/ms-office",
-            "doc/xls/ppt",
+            "application/ms-office.under-2003",
+            "doc xls ppt",
         );
         test(
             match_document,
             "sample.ppt",
-            "application/ms-office",
-            "doc/xls/ppt",
+            "application/ms-office.under-2003",
+            "doc xls ppt",
         );
         test(
             match_document,
             "sample.xls",
-            "application/ms-office",
-            "doc/xls/ppt",
+            "application/ms-office.under-2003",
+            "doc xls ppt",
         );
     }
 
