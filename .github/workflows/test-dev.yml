@@ -1,0 +1,21 @@
+name: Test branch dev
+
+on:
+  push:
+    branches:
+    - dev
+
+jobs:
+  build-and-release:
+    runs-on: windows-latest
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v4
+    - name: Setup Rust
+      uses: hecrj/setup-rust-action@v2
+      with:
+        rust-version: 'stable'
+    - name: Test Cargo
+      run: cargo --version
+    - name: Test
+      run: cargo test --verbose

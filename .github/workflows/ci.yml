@@ -1,0 +1,32 @@
+name: GitHub Actions Build and Release
+
+on:
+  push:
+    branches:
+    - main
+
+jobs:
+  build-and-release:
+    runs-on: windows-latest
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v4
+    - name: Setup Rust
+      uses: hecrj/setup-rust-action@v2
+      with:
+        rust-version: 'stable'
+    - name: Test Cargo
+      run: cargo --version
+    - name: Test
+      run: cargo test --verbose
+    - name: Build
+      run: cargo build --release --verbose
+    - name: Release
+      uses: marvinpinto/action-automatic-releases@latest
+      with:
+        repo_token: "${{ secrets.GITHUB_TOKEN }}"
+        automatic_release_tag: 'latest'
+        title: 'latest'
+        prerelease: false
+        files: |
+          target/release/file.exe
