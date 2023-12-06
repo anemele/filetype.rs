@@ -3,7 +3,8 @@ name: GitHub Actions Public to crates.io
 on:
   push:
     branches:
-      - main
+      # There is no branch named publish, that's to disable this workflow
+      - publish
 
 jobs:
   build-and-release:
